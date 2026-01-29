@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CodeSage — AI Code Wisdom</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* ===================== THEME VARIABLES ===================== */
+    :root {
+      --bg: #0e1117;
+      --bg-soft: rgba(255,255,255,0.05);
+      --card: rgba(255,255,255,0.08);
+      --text: #e6edf3;
+      --muted: #9ba3af;
+      --accent: #7c9cff;
+      --accent-2: #9d7cff;
+      --border: rgba(255,255,255,0.15);
+      --green: #2ecc71;
+      --yellow: #f1c40f;
+      --red: #ff5c5c;
+      --orange: #ff9f43;
+      --purple: #a66bff;
+      --radius: 16px;
+      --blur: blur(14px);
+      --transition: 0.35s ease;
+    }
+
+    body.light {
+      --bg: #f6f8fb;
+      --bg-soft: rgba(0,0,0,0.04);
+      --card: rgba(255,255,255,0.7);
+      --text: #0f172a;
+      --muted: #475569;
+      --border: rgba(0,0,0,0.1);
+    }
+
+    /* ===================== GLOBAL STYLES ===================== */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: background var(--transition), color var(--transition);
+      line-height: 1.6;
+    }
+    .container { width: 92%; max-width: 1400px; margin: auto; padding-bottom: 80px; }
+    .glass { background: var(--card); backdrop-filter: var(--blur); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 20px 40px rgba(0,0,0,0.25); }
+
+    /* ===================== HEADER ===================== */
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--bg-soft); backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border); padding: 18px 0;
+    }
+    .header-inner { display: flex; justify-content: space-between; align-items: center; }
+    .logo h1 { font-size: 26px; letter-spacing: 1px; }
+    .tagline { font-size: 13px; font-style: italic; background: linear-gradient(90deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+    /* ===================== EDITORS ===================== */
+    .editors { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 40px; }
+    .editor { padding: 18px; display: flex; flex-direction: column; height: 420px; }
+    .editor-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    textarea { flex: 1; resize: none; background: #0b0f14; color: #e5e7eb; border: 1px solid var(--border); border-radius: 12px; padding: 14px; font-family: 'JetBrains Mono', monospace; font-size: 14px; }
+    body.light textarea { background: #ffffff; color: #0f172a; }
+
+    /* ===================== BUTTONS ===================== */
+    button { cursor: pointer; border: none; border-radius: 10px; padding: 10px 16px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: white; font-weight: 600; transition: 0.2s; }
+    button:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(124,156,255,0.4); }
+    .icon-btn { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .copy-btn { padding: 6px 12px; font-size: 12px; background: var(--bg-soft); border: 1px solid var(--border); color: var(--text); border-radius: 8px; }
+
+    /* ===================== QUALITY & SUMMARY ===================== */
+    .quality { padding: 30px; text-align: center; margin-top: 40px; }
+    .progress { height: 14px; background: rgba(255,255,255,0.1); border-radius: 20px; margin: 20px 0; overflow: hidden; }
+    .progress span { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, #f1c40f, #2ecc71); transition: width 1s ease-in-out; }
+    
+    .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 20px; }
+    .summary-card { padding: 22px; border-left: 4px solid transparent; }
+    .error { border-left-color: var(--red); }
+    .ineff { border-left-color: var(--orange); }
+    .secure { border-left-color: var(--purple); }
+
+    footer { margin-top: 60px; padding: 30px; text-align: center; color: var(--muted); border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="container header-inner">
+      <div class="logo">
+        <h1>CodeSage</h1>
+        <div class="tagline">An AI that gives wisdom to your code.</div>
+      </div>
+      <div class="header-actions">
+        <button id="themeToggle" class="icon-btn">🌙</button>
+        <button id="reviewBtn">Review Code</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="editors">
+      <div class="editor glass">
+        <div class="editor-header">
+          <h3>Source Code</h3>
+          <button class="icon-btn" onclick="document.getElementById('source').value=''">Clear</button>
+        </div>
+        <textarea id="source">def add(a,b):
+ return a+b
+
+print(add(5,3))</textarea>
+      </div>
+
+      <div class="editor glass">
+        <div class="editor-header">
+          <h3>Optimized Code</h3>
+          <button class="copy-btn" id="copyBtn">Copy Code</button>
+        </div>
+        <textarea id="optimized" readonly># Optimized code will appear here...</textarea>
+      </div>
+    </section>
+
+    <section class="glass quality">
+      <h2>Code Quality Index</h2>
+      <div id="qualityScore" style="font-size:34px; font-weight:800; margin: 10px 0;">-- / 100</div>
+      <div class="progress"><span id="progressBar"></span></div>
+    </section>
+
+    <section>
+      <h2>AI Review Summary</h2>
+      <div class="summary-grid">
+        <div class="summary-card glass error">
+          <h3>Errors</h3>
+          <p id="errorList">Waiting for analysis...</p>
+        </div>
+        <div class="summary-card glass ineff">
+          <h3>Inefficiencies</h3>
+          <p id="ineffList">Waiting for analysis...</p>
+        </div>
+        <div class="summary-card glass secure">
+          <h3>Security</h3>
+          <p id="secureList">Waiting for analysis...</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>CodeSage — Autonomous Code Review Agent</footer>
+
+  <script>
+    // Theme Toggling
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.onclick = () => {
+      document.body.classList.toggle('light');
+      themeToggle.innerText = document.body.classList.contains('light') ? '☀️' : '🌙';
+    };
+
+    // Copy to Clipboard Logic
+    document.getElementById('copyBtn').onclick = () => {
+      const code = document.getElementById('optimized').value;
+      navigator.clipboard.writeText(code);
+      const btn = document.getElementById('copyBtn');
+      btn.innerText = "✓ Copied!";
+      setTimeout(() => btn.innerText = "Copy Code", 2000);
+    };
+
+    // Core Review Logic
+    document.getElementById('reviewBtn').onclick = async () => {
+      const source = document.getElementById('source').value;
+      const reviewBtn = document.getElementById('reviewBtn');
+      reviewBtn.innerText = "Analyzing...";
+
+      try {
+        const response = await fetch('/review', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code: source })
+        });
+
+        const data = await response.json();
+
+        // Populate Optimized Code
+        document.getElementById('optimized').value = data.optimized_code;
+        
+        // Update Quality Index
+        document.getElementById('qualityScore').innerText = `${data.quality_score} / 100`;
+        document.getElementById('progressBar').style.width = `${data.quality_score}%`;
+
+        // Map and Populate Summary Lists
+        const formatList = (items) => items.map(item => `• ${item}`).join('<br>');
+        document.getElementById('errorList').innerHTML = formatList(data.errors);
+        document.getElementById('ineffList').innerHTML = formatList(data.inefficiencies);
+        document.getElementById('secureList').innerHTML = formatList(data.security);
+
+      } catch (err) {
+        alert("Failed to analyze. Please check your API key and Flask server.");
+      } finally {
+        reviewBtn.innerText = "Review Code";
+      }
+    };
+  </script>
+</body>
+</html>
