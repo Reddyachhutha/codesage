@@ -5,66 +5,49 @@ from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
 
-# ==========================================
-# 1. API CONFIGURATION
-# ==========================================
-# Hardcoded API key and model as requested
-API_KEY = 'AIzaSyCdelupTJTAV9BVNfcQrA3gHF3_9Xd5w1w'
+# Your API Key integration
+API_KEY = 'AIzaSyBHafGzQLmGXIwAXuEuyANNpbe-KXJ_YsM'
 genai.configure(api_key=API_KEY)
-
-# Targeted model: gemini-3-flash-preview
 model = genai.GenerativeModel('gemini-3-flash-preview')
 
 @app.route('/')
 def index():
-    """Renders the main CodeSage dashboard."""
     return render_template('index.html')
 
 @app.route('/review', methods=['POST'])
 def review_code():
-    """Handles the code review logic by communicating with Gemini."""
     try:
         data = request.get_json()
         user_code = data.get('code', '')
+        language = data.get('language', 'Auto-detect')
 
-        if not user_code:
-            return jsonify({"error": "No code provided"}), 400
-
-        # Structured prompt to ensure JSON response
+        # Separate work instructions bound to the JSON structure
         prompt = f"""
-        Act as an Autonomous Code Reviewer. Audit this code:
+        Act as a Senior Auditor for {language}. Audit the following code:
         ---
         {user_code}
         ---
-        Your response must be ONLY a valid JSON object. 
-        Do not use markdown blocks or conversational text.
-        
-        Required JSON Structure:
+        Perform these 3 tasks and return ONLY a JSON object:
+        1. Fix bugs/syntax for {language} specifically.
+        2. Analyze Big-O and execution efficiency.
+        3. Audit for security (SQLi, XSS, etc.).
+
+        Output format:
         {{
           "optimized_code": "The full corrected and clean code",
           "quality_score": 85,
           "errors": ["list of syntax/logic bugs"],
           "inefficiencies": ["list of performance issues"],
-          "security": ["list of vulnerabilities like SQLi, XSS"]
+          "security": ["list of vulnerabilities"]
         }}
         """
 
-        # Generate content from Gemini
         response = model.generate_content(prompt)
-        
-        # Strip potential markdown backticks to prevent parsing errors
         raw_text = response.text.replace('```json', '').replace('```', '').strip()
-        
-        # Convert raw text to JSON and send back to frontend
-        result = json.loads(raw_text)
-        return jsonify(result)
+        return jsonify(json.loads(raw_text))
 
-    except json.JSONDecodeError:
-        print("AI Output was not valid JSON.")
-        return jsonify({"error": "AI response format error. Try again."}), 500
     except Exception as e:
-        print(f"Backend Server Error: {str(e)}")
-        return jsonify({"error": "Connection to Gemini failed. Check API key status."}), 500
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

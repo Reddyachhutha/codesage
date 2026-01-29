@@ -202,5 +202,71 @@ print(add(5,3))</textarea>
       }
     };
   </script>
+  <style>
+  /* Modal Styling */
+  .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
+  .modal-content { background: var(--bg); margin: 10% auto; padding: 30px; border: 1px solid var(--accent); width: 300px; border-radius: 16px; text-align: center; }
+  .lang-option { display: block; width: 100%; padding: 10px; margin: 5px 0; background: var(--bg-soft); border: 1px solid var(--border); color: white; cursor: pointer; border-radius: 8px; }
+  .lang-option:hover { background: var(--accent); }
+  .selected-lang { font-size: 14px; color: var(--accent); margin-left: 10px; font-weight: bold; }
+</style>
+
+<div class="header-actions">
+  <span id="displayLang" class="selected-lang">Python</span>
+  <button id="langSelectBtn" class="icon-btn">🌐 Select Language</button>
+  <button id="reviewBtn">Review Code</button>
+</div>
+
+<div id="langModal" class="modal">
+  <div class="modal-content glass">
+    <h3>Choose Language</h3>
+    <button class="lang-option" onclick="setLang('Python')">Python</button>
+    <button class="lang-option" onclick="setLang('JavaScript')">JavaScript</button>
+    <button class="lang-option" onclick="setLang('Java')">Java</button>
+    <button class="lang-option" onclick="setLang('C++')">C++</button>
+    <button class="lang-option" onclick="setLang('C#')">C#</button>
+    <button class="lang-option" onclick="setLang('Go')">Go</button>
+    <button class="lang-option" onclick="setLang('PHP')">PHP</button>
+  </div>
+</div>
+
+<script>
+  let currentLang = "Python";
+  const modal = document.getElementById('langModal');
+
+  // Popup logic
+  document.getElementById('langSelectBtn').onclick = () => modal.style.display = "block";
+  function setLang(lang) {
+    currentLang = lang;
+    document.getElementById('displayLang').innerText = lang;
+    modal.style.display = "none";
+  }
+
+  // Updated Review logic
+  document.getElementById('reviewBtn').onclick = async () => {
+    const code = document.getElementById('source').value;
+    document.getElementById('reviewBtn').innerText = "Analyzing...";
+
+    const response = await fetch('/review', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: code, language: currentLang })
+    });
+
+    const data = await response.json();
+    
+    // Populate sections
+    document.getElementById('optimized').value = data.optimized_code;
+    document.getElementById('qualityScore').innerText = `${data.quality_score} / 100`;
+    document.querySelector('.progress span').style.width = `${data.quality_score}%`;
+    
+    document.getElementById('errorList').innerHTML = data.errors.map(e => `• ${e}`).join('<br>');
+    document.getElementById('ineffList').innerHTML = data.inefficiencies.map(e => `• ${e}`).join('<br>');
+    document.getElementById('secureList').innerHTML = data.security.map(e => `• ${e}`).join('<br>');
+
+    document.getElementById('reviewBtn').innerText = "Review Code";
+  };
+</script>
+
 </body>
 </html>
