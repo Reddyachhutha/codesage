@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - CodeSage</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ===================== VARIABLES ===================== */
+        :root {
+            --text: #e6edf3;
+            --muted: #9ba3af;
+            --accent: #7c9cff;
+            --accent-glow: rgba(124, 156, 255, 0.5);
+            --red: #ff5c5c;
+        }
+
+        /* ===================== GLOBAL & BACKGROUND ===================== */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text);
+            overflow: hidden;
+            
+            /* High-end tech background with a dark overlay for readability */
+            background: linear-gradient(rgba(10, 12, 18, 0.85), rgba(10, 12, 18, 0.95)),
+                        url('https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+        }
+
+        /* ===================== SUPER GLOSSY CARD ===================== */
+        .glass-card {
+            width: 90%;
+            max-width: 420px;
+            padding: 50px 40px;
+            text-align: center;
+            border-radius: 24px;
+            
+            /* The core glossy effect */
+            background: rgba(255, 255, 255, 0.03); /* Very subtle fill */
+            backdrop-filter: blur(30px) saturate(120%); /* Heavy blur + vivid colors behind */
+            -webkit-backdrop-filter: blur(30px) saturate(120%); /* Safari support */
+            
+            /* Reflective borders (brighter on top/left to mimic light) */
+            border-top: 1px solid rgba(255, 255, 255, 0.4);
+            border-left: 1px solid rgba(255, 255, 255, 0.4);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            
+            /* Deep floating shadow + Inner glowing edge */
+            box-shadow: 
+                0 30px 60px -12px rgba(0, 0, 0, 0.6), /* Depth shadow */
+                inset 0 0 20px rgba(255, 255, 255, 0.05); /* Inner glass glow */
+                
+            transform: translateY(0);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 35px 70px -12px rgba(0, 0, 0, 0.7),
+                inset 0 0 30px rgba(255, 255, 255, 0.08);
+        }
+
+        /* ===================== TYPOGRAPHY ===================== */
+        h2 {
+            margin: 0 0 10px 0;
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #fff, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle {
+            color: var(--muted);
+            margin-bottom: 35px;
+            font-size: 15px;
+        }
+
+        /* ===================== INPUTS ===================== */
+        .input-group { margin-bottom: 20px; }
+        input {
+            width: 100%;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        input:focus {
+            border-color: var(--accent);
+            background: rgba(0, 0, 0, 0.4);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+        input::placeholder { color: rgba(255, 255, 255, 0.4); }
+
+        /* ===================== BUTTON ===================== */
+        .cta-btn {
+            width: 100%;
+            padding: 16px;
+            margin-top: 10px;
+            background: linear-gradient(135deg, var(--accent), #9d7cff);
+            border: none;
+            color: white;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(124, 156, 255, 0.3);
+        }
+        .cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(124, 156, 255, 0.5);
+            filter: brightness(1.1);
+        }
+
+        /* ===================== LINKS & FOOTER ===================== */
+        .switch-link { margin-top: 25px; font-size: 14px; color: var(--muted); }
+        a { color: var(--accent); text-decoration: none; font-weight: 600; transition: color 0.2s; }
+        a:hover { color: #b3c7ff; }
+        
+        .error {
+            color: var(--red);
+            background: rgba(255, 92, 92, 0.1);
+            border: 1px solid rgba(255, 92, 92, 0.3);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-top: 20px;
+            display: none; /* Hidden by default */
+            text-align: left;
+        }
+
+        .team-footer {
+            margin-top: 40px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+<div class="glass-card">
+    <h2>Join CodeSage</h2>
+    <p class="subtitle">Create your account to unlock AI wisdom.</p>
+    
+    <div class="input-group">
+        <input type="email" id="email" placeholder="Email Address" required autocomplete="email">
+    </div>
+    <div class="input-group">
+        <input type="password" id="password" placeholder="Password (Min 6 chars)" required autocomplete="new-password">
+    </div>
+    
+    <button id="signupBtn" class="cta-btn">Create Account</button>
+    
+    <div class="error" id="errorMsg"></div>
+
+    <p class="switch-link">
+        Already have an account? <a href="/login">Login here</a>
+    </p>
+    
+    <div class="team-footer">
+        Created by <span style="color: var(--accent);">Team STRIX</span>
+    </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+  // --- PASTE YOUR FIREBASE CONFIG OBJECT HERE ---
+    const firebaseConfig = {
+    apiKey: "AIzaSyCzogZh44f802_ZV8NhBYltFDNqZws-ywA",
+    authDomain: "strix-95347.firebaseapp.com",
+    projectId: "strix-95347",
+    storageBucket: "strix-95347.firebasestorage.app",
+    messagingSenderId: "968074218383",
+    appId: "1:968074218383:web:aed85f292c0c8d184199fa",
+    measurementId: "G-NKMNTP9N5Z"
+  };
+
+  // ----------------------------------------------
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  // Handle Sign Up
+  const signupBtn = document.getElementById('signupBtn');
+  const errorMsg = document.getElementById('errorMsg');
+
+  signupBtn.addEventListener('click', async () => {
+    const email = document.getElementById('email').value;
+    const pass = document.getElementById('password').value;
+
+    // Basic validation
+    if (!email || !pass) {
+        showError("Please fill in all fields.");
+        return;
+    }
+    if (pass.length < 6) {
+        showError("Password must be at least 6 characters.");
+        return;
+    }
+
+    // UI Loading State
+    signupBtn.innerText = "Creating Account...";
+    signupBtn.disabled = true;
+    errorMsg.style.display = 'none';
+
+    try {
+        await createUserWithEmailAndPassword(auth, email, pass);
+        // Success! Redirect to dashboard
+        window.location.href = "/";
+    } catch (error) {
+        // Handle Errors gracefully
+        let message = error.message.replace("Firebase: ", "").replace("auth/", "");
+        // Make common errors more readable
+        if (message.includes("email-already-in-use")) message = "That email is already taken.";
+        if (message.includes("invalid-email")) message = "Please enter a valid email address.";
+        showError('⚠️ ' + message);
+    } finally {
+        // Reset button state
+        signupBtn.innerText = "Create Account";
+        signupBtn.disabled = false;
+    }
+  });
+
+  function showError(message) {
+      errorMsg.innerText = message;
+      errorMsg.style.display = 'block';
+      // Shake animation for error
+      signupBtn.style.animation = "shake 0.4s linear";
+      setTimeout(() => signupBtn.style.animation = "none", 400);
+  }
+</script>
+
+<style>
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+</style>
+
+</body>
+</html>

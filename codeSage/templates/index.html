@@ -56,7 +56,10 @@
       border-bottom: 1px solid var(--border); padding: 18px 0;
     }
     .header-inner { display: flex; justify-content: space-between; align-items: center; }
-    .logo h1 { font-size: 26px; letter-spacing: 1px; }
+    
+    .header-left { display: flex; align-items: center; gap: 20px; }
+    
+    .logo h1 { font-size: 26px; letter-spacing: 1px; margin: 0; line-height: 1.2; }
     .tagline { font-size: 13px; font-style: italic; background: linear-gradient(90deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
     /* ===================== EDITORS ===================== */
@@ -69,8 +72,16 @@
     /* ===================== BUTTONS ===================== */
     button { cursor: pointer; border: none; border-radius: 10px; padding: 10px 16px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: white; font-weight: 600; transition: 0.2s; }
     button:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(124,156,255,0.4); }
+    button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
     .icon-btn { background: transparent; color: var(--text); border: 1px solid var(--border); }
     .copy-btn { padding: 6px 12px; font-size: 12px; background: var(--bg-soft); border: 1px solid var(--border); color: var(--text); border-radius: 8px; }
+
+    /* ===================== MODAL (Language Selector) ===================== */
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
+    .modal-content { background: var(--bg); margin: 10% auto; padding: 30px; border: 1px solid var(--accent); width: 300px; border-radius: 16px; text-align: center; }
+    .lang-option { display: block; width: 100%; padding: 10px; margin: 5px 0; background: var(--bg-soft); border: 1px solid var(--border); color: var(--text); cursor: pointer; border-radius: 8px; }
+    .lang-option:hover { background: var(--accent); color: white; }
+    .selected-lang { font-size: 14px; color: var(--accent); margin-right: 15px; font-weight: bold; }
 
     /* ===================== QUALITY & SUMMARY ===================== */
     .quality { padding: 30px; text-align: center; margin-top: 40px; }
@@ -83,20 +94,83 @@
     .ineff { border-left-color: var(--orange); }
     .secure { border-left-color: var(--purple); }
 
-    footer { margin-top: 60px; padding: 30px; text-align: center; color: var(--muted); border-top: 1px solid var(--border); }
+    /* ===================== PROFILE SIDEBAR ===================== */
+    .profile-btn {
+        width: 45px; height: 45px; border-radius: 50%; background: var(--bg-soft); border: 1px solid var(--border);
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; transition: 0.3s; 
+    }
+    .profile-btn:hover { border-color: var(--accent); background: var(--card); }
+
+    /* Sidebar slides from LEFT */
+    .sidebar {
+        position: fixed; top: 0; left: -320px; 
+        width: 300px; height: 100vh;
+        background: rgba(14, 17, 23, 0.95); backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-right: 1px solid var(--border);
+        box-shadow: 10px 0 30px rgba(0,0,0,0.5); z-index: 1100;
+        transition: left 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+        padding: 30px; display: flex; flex-direction: column; align-items: center;
+    }
+    .sidebar.active { left: 0; }
+
+    .sidebar-header { width: 100%; display: flex; justify-content: flex-end; margin-bottom: 20px; }
+    .close-btn { background: none; border: none; color: var(--muted); font-size: 24px; cursor: pointer; }
+
+    .profile-large {
+        width: 80px; height: 80px; border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        display: flex; align-items: center; justify-content: center;
+        font-size: 32px; color: white; margin-bottom: 15px;
+        box-shadow: 0 0 20px var(--accent-glow, rgba(124,156,255,0.3));
+    }
+
+    .user-email { font-weight: 600; color: var(--text); margin-bottom: 5px; word-break: break-all; }
+    .user-role { font-size: 12px; color: var(--muted); margin-bottom: 30px; text-transform: uppercase; letter-spacing: 1px; }
+
+    .logout-btn-side {
+        width: 100%; padding: 12px;
+        background: rgba(255, 92, 92, 0.1); color: var(--red);
+        border: 1px solid rgba(255, 92, 92, 0.3); border-radius: 12px;
+        font-weight: 600; cursor: pointer; transition: 0.2s; margin-top: auto;
+    }
+    .logout-btn-side:hover { background: var(--red); color: white; }
+
+    .overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.5); z-index: 1000;
+        opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    }
+    .overlay.active { opacity: 1; pointer-events: auto; }
+
+    /* ===================== FOOTER ===================== */
+    footer { margin-top: 60px; padding: 40px; text-align: center; color: var(--muted); border-top: 1px solid var(--border); }
+    .footer-credits { margin-top: 10px; font-size: 14px; }
+    .team-name { color: var(--accent); font-weight: 700; letter-spacing: 0.5px; }
   </style>
 </head>
 <body>
 
   <header>
     <div class="container header-inner">
-      <div class="logo">
-        <h1>CodeSage</h1>
-        <div class="tagline">An AI that gives wisdom to your code.</div>
+      
+      <div class="header-left">
+        <button id="profileToggleBtn" class="profile-btn">
+          👤
+        </button>
+        
+        <div class="logo">
+          <h1>CodeSage</h1>
+          <div class="tagline">An AI that gives wisdom to your code.</div>
+        </div>
       </div>
+
       <div class="header-actions">
-        <button id="themeToggle" class="icon-btn">🌙</button>
-        <button id="reviewBtn">Review Code</button>
+        <span id="displayLang" class="selected-lang">Python</span>
+        <button id="langSelectBtn" class="icon-btn">🌐 Language</button>
+        <button id="themeToggle" class="icon-btn" style="margin-left: 10px;">🌙</button>
+        <button id="reviewBtn" style="margin-left: 10px;">Review Code</button>
       </div>
     </div>
   </header>
@@ -108,7 +182,7 @@
           <h3>Source Code</h3>
           <button class="icon-btn" onclick="document.getElementById('source').value=''">Clear</button>
         </div>
-        <textarea id="source">def add(a,b):
+        <textarea id="source" placeholder="Paste your code here...">def add(a,b):
  return a+b
 
 print(add(5,3))</textarea>
@@ -148,125 +222,192 @@ print(add(5,3))</textarea>
     </section>
   </main>
 
-  <footer>CodeSage — Autonomous Code Review Agent</footer>
+  <footer>
+    <div>&copy; 2026 CodeSage. All rights reserved.</div>
+    <div class="footer-credits">
+      Created by <span class="team-name">Team STRIX</span>
+    </div>
+  </footer>
+
+  <div id="langModal" class="modal">
+    <div class="modal-content glass">
+      <h3>Choose Language</h3>
+      <button class="lang-option" onclick="setLang('Python')">Python</button>
+      <button class="lang-option" onclick="setLang('JavaScript')">JavaScript</button>
+      <button class="lang-option" onclick="setLang('Java')">Java</button>
+      <button class="lang-option" onclick="setLang('C++')">C++</button>
+      <button class="lang-option" onclick="setLang('C#')">C#</button>
+      <button class="lang-option" onclick="setLang('Go')">Go</button>
+      <button class="lang-option" onclick="setLang('PHP')">PHP</button>
+      <button class="lang-option" onclick="document.getElementById('langModal').style.display='none'" style="margin-top:15px; background:var(--red);">Close</button>
+    </div>
+  </div>
+
+  <div id="sidebarOverlay" class="overlay"></div>
+
+  <div id="profileSidebar" class="sidebar">
+    <div class="sidebar-header">
+      <button id="closeSidebar" class="close-btn">&times;</button>
+    </div>
+
+    <div class="profile-large">
+      👤
+    </div>
+
+    <div id="sidebarEmail" class="user-email">Loading...</div>
+    <div class="user-role">CodeSage Member</div>
+
+    <div style="width:100%; height:1px; background:var(--border); margin: 20px 0;"></div>
+
+    <button id="logoutBtn" class="logout-btn-side">Sign Out</button>
+  </div>
 
   <script>
-    // Theme Toggling
+    // 1. Theme Toggling
     const themeToggle = document.getElementById('themeToggle');
-    themeToggle.onclick = () => {
-      document.body.classList.toggle('light');
-      themeToggle.innerText = document.body.classList.contains('light') ? '☀️' : '🌙';
-    };
 
-    // Copy to Clipboard Logic
+    function toggleTheme() {
+        document.body.classList.toggle('light');
+        const isLight = document.body.classList.contains('light');
+        const icon = isLight ? '☀️' : '🌙';
+        themeToggle.innerText = icon;
+    }
+
+    themeToggle.onclick = toggleTheme;
+
+    // 2. Language Selection Logic
+    let currentLang = "Python";
+    const modal = document.getElementById('langModal');
+    
+    document.getElementById('langSelectBtn').onclick = () => modal.style.display = "block";
+
+    function setLang(lang) {
+      currentLang = lang;
+      document.getElementById('displayLang').innerText = lang;
+      modal.style.display = "none";
+    }
+
+    // 3. Copy to Clipboard
     document.getElementById('copyBtn').onclick = () => {
       const code = document.getElementById('optimized').value;
+      if (!code) return;
       navigator.clipboard.writeText(code);
       const btn = document.getElementById('copyBtn');
       btn.innerText = "✓ Copied!";
       setTimeout(() => btn.innerText = "Copy Code", 2000);
     };
 
-    // Core Review Logic
+    // 4. Core Review Logic
     document.getElementById('reviewBtn').onclick = async () => {
       const source = document.getElementById('source').value;
       const reviewBtn = document.getElementById('reviewBtn');
+      
+      // UI State: Loading
       reviewBtn.innerText = "Analyzing...";
+      reviewBtn.disabled = true;
 
       try {
         const response = await fetch('/review', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ code: source })
+          body: JSON.stringify({ code: source, language: currentLang })
         });
 
         const data = await response.json();
 
-        // Populate Optimized Code
+        if (data.error) {
+            alert("⚠️ " + data.error);
+            return;
+        }
+
         document.getElementById('optimized').value = data.optimized_code;
-        
-        // Update Quality Index
         document.getElementById('qualityScore').innerText = `${data.quality_score} / 100`;
         document.getElementById('progressBar').style.width = `${data.quality_score}%`;
 
-        // Map and Populate Summary Lists
-        const formatList = (items) => items.map(item => `• ${item}`).join('<br>');
+        const formatList = (items) => {
+            if (!items || items.length === 0) return "None detected.";
+            return items.map(item => `• ${item}`).join('<br>');
+        };
+
         document.getElementById('errorList').innerHTML = formatList(data.errors);
         document.getElementById('ineffList').innerHTML = formatList(data.inefficiencies);
         document.getElementById('secureList').innerHTML = formatList(data.security);
 
       } catch (err) {
-        alert("Failed to analyze. Please check your API key and Flask server.");
+        console.error(err);
+        alert("Failed to connect to the server. Is Flask running?");
       } finally {
         reviewBtn.innerText = "Review Code";
+        reviewBtn.disabled = false; 
       }
     };
+
+    // Close modal if clicking outside
+    window.onclick = (event) => {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
   </script>
-  <style>
-  /* Modal Styling */
-  .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
-  .modal-content { background: var(--bg); margin: 10% auto; padding: 30px; border: 1px solid var(--accent); width: 300px; border-radius: 16px; text-align: center; }
-  .lang-option { display: block; width: 100%; padding: 10px; margin: 5px 0; background: var(--bg-soft); border: 1px solid var(--border); color: white; cursor: pointer; border-radius: 8px; }
-  .lang-option:hover { background: var(--accent); }
-  .selected-lang { font-size: 14px; color: var(--accent); margin-left: 10px; font-weight: bold; }
-</style>
 
-<div class="header-actions">
-  <span id="displayLang" class="selected-lang">Python</span>
-  <button id="langSelectBtn" class="icon-btn">🌐 Select Language</button>
-  <button id="reviewBtn">Review Code</button>
-</div>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-<div id="langModal" class="modal">
-  <div class="modal-content glass">
-    <h3>Choose Language</h3>
-    <button class="lang-option" onclick="setLang('Python')">Python</button>
-    <button class="lang-option" onclick="setLang('JavaScript')">JavaScript</button>
-    <button class="lang-option" onclick="setLang('Java')">Java</button>
-    <button class="lang-option" onclick="setLang('C++')">C++</button>
-    <button class="lang-option" onclick="setLang('C#')">C#</button>
-    <button class="lang-option" onclick="setLang('Go')">Go</button>
-    <button class="lang-option" onclick="setLang('PHP')">PHP</button>
-  </div>
-</div>
+    // --- YOUR FIREBASE CONFIG ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyCzogZh44f802_ZV8NhBYltFDNqZws-ywA",
+      authDomain: "strix-95347.firebaseapp.com",
+      projectId: "strix-95347",
+      storageBucket: "strix-95347.firebasestorage.app",
+      messagingSenderId: "968074218383",
+      appId: "1:968074218383:web:aed85f292c0c8d184199fa",
+      measurementId: "G-NKMNTP9N5Z"
+    };
 
-<script>
-  let currentLang = "Python";
-  const modal = document.getElementById('langModal');
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-  // Popup logic
-  document.getElementById('langSelectBtn').onclick = () => modal.style.display = "block";
-  function setLang(lang) {
-    currentLang = lang;
-    document.getElementById('displayLang').innerText = lang;
-    modal.style.display = "none";
-  }
+    // --- UI ELEMENTS ---
+    const sidebar = document.getElementById('profileSidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    const profileBtn = document.getElementById('profileToggleBtn');
+    const closeBtn = document.getElementById('closeSidebar');
+    const emailDisplay = document.getElementById('sidebarEmail');
 
-  // Updated Review logic
-  document.getElementById('reviewBtn').onclick = async () => {
-    const code = document.getElementById('source').value;
-    document.getElementById('reviewBtn').innerText = "Analyzing...";
+    // --- OPEN/CLOSE LOGIC ---
+    function toggleSidebar() {
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+    }
 
-    const response = await fetch('/review', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code: code, language: currentLang })
+    if(profileBtn) profileBtn.addEventListener('click', toggleSidebar);
+    if(closeBtn) closeBtn.addEventListener('click', toggleSidebar);
+    if(overlay) overlay.addEventListener('click', toggleSidebar);
+
+    // --- AUTH LOGIC (Protect Page) ---
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is logged in
+        console.log("Logged in as:", user.email);
+        emailDisplay.innerText = user.email;
+      } else {
+        // User is NOT logged in, redirect to login
+        window.location.href = "/login";
+      }
     });
 
-    const data = await response.json();
-    
-    // Populate sections
-    document.getElementById('optimized').value = data.optimized_code;
-    document.getElementById('qualityScore').innerText = `${data.quality_score} / 100`;
-    document.querySelector('.progress span').style.width = `${data.quality_score}%`;
-    
-    document.getElementById('errorList').innerHTML = data.errors.map(e => `• ${e}`).join('<br>');
-    document.getElementById('ineffList').innerHTML = data.inefficiencies.map(e => `• ${e}`).join('<br>');
-    document.getElementById('secureList').innerHTML = data.security.map(e => `• ${e}`).join('<br>');
-
-    document.getElementById('reviewBtn').innerText = "Review Code";
-  };
-</script>
-
+    // --- LOGOUT LOGIC ---
+    const logoutBtn = document.getElementById('logoutBtn');
+    if(logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            if(confirm("Are you sure you want to log out?")) {
+                signOut(auth).then(() => {
+                    window.location.href = "/login";
+                });
+            }
+        });
+    }
+  </script>
 </body>
 </html>
